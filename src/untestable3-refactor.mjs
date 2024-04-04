@@ -4,6 +4,7 @@ import { parse } from "csv-parse/sync";
 export async function readCsv(filePath) {
   return readFile(filePath, { encoding: "utf8" });
 }
+
 export function parsePeopleCsv(csvData) {
   const records = parse(csvData, {
     skip_empty_lines: true,
