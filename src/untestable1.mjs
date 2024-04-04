@@ -10,3 +10,9 @@ export function daysUntilChristmas() {
   const diffMillis = christmasDay.getTime() - today.getTime();
   return Math.floor(diffMillis / millisPerDay);
 }
+
+/*
+* Function is untestable because it depends on the current time. There is no way to provide the
+* function with a variety of dates to test that they all provide appropriate output.
+*
+* */
