@@ -6,7 +6,7 @@ export function daysUntilChristmas(date) {
   }
 
   if (typeof date === "string") {
-    date = date.replaceAll("-", "/");
+    date = date.replaceAll("-", "/"); // My timezone (GMT-4) makes the getDate() function unpredictable with hyphens
     date = new Date(date)
   }
 
@@ -20,3 +20,4 @@ export function daysUntilChristmas(date) {
   const diffMillis = christmasDay.getTime() - dateToCheck.getTime();
   return Math.floor(diffMillis / millisPerDay);
 }
+
