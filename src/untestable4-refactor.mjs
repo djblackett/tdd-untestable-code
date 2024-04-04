@@ -1,35 +1,12 @@
 import argon2 from "@node-rs/argon2";
 import pg from "pg";
 
-/*
-* Problems:
-* No dependency injection - class is tightly coupled to the DB
-* Singleton pattern - Cannot create multiple DAOs to runs tests in parallel - or in production
-* Depends on .env file for testing - passing DB into constructor will loosen this coupling
-*
-* */
-
 export class PostgresUserDao {
-  static instance;
 
-  static getInstance() {
-    if (!this.instance) {
-      this.instance = new PostgresUserDao();
-    }
-    return this.instance;
-  }
+ constructor(db) {
+   this.db = db;
+ }
 
-  db = new pg.Pool({
-    user: process.env.PGUSER,
-    host: process.env.PGHOST,
-    database: process.env.PGDATABASE,
-    password: process.env.PGPASSWORD,
-    port: process.env.PGPORT,
-  });
-
-  close() {
-    this.db.end();
-  }
 
   #rowToUser(row) {
     return { userId: row.user_id, passwordHash: row.password_hash };
