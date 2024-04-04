@@ -6,16 +6,17 @@ export function daysUntilChristmas(date) {
   }
 
   if (typeof date === "string") {
+    date = date.replaceAll("-", "/");
     date = new Date(date)
   }
 
   const dateToCheck = new Date(new Date().getFullYear(), date.getMonth(), date.getDate());
   const christmasDay = new Date(dateToCheck.getFullYear(), 12 - 1, 25);
 
-  if (dateToCheck.getTime() > christmasDay.getTime() + millisPerDay) {
+  if (dateToCheck.getTime() > christmasDay.getTime()) {
     christmasDay.setFullYear(new Date().getFullYear() + 1);
   }
 
-  const diffMillis = christmasDay.getTime() - dateToCheck.getTime() - millisPerDay;
+  const diffMillis = christmasDay.getTime() - dateToCheck.getTime();
   return Math.floor(diffMillis / millisPerDay);
 }
