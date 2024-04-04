@@ -1,8 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { parse } from "csv-parse/sync";
 
-export async function parsePeopleCsv(filePath) {
-  const csvData = await readFile(filePath, { encoding: "utf8" });
+export async function readCsv(filePath) {
+  return readFile(filePath, { encoding: "utf8" });
+}
+export function parsePeopleCsv(csvData) {
   const records = parse(csvData, {
     skip_empty_lines: true,
     trim: true,
@@ -20,5 +22,3 @@ export async function parsePeopleCsv(filePath) {
   });
 }
 
-// function is technically testable as is, however, it is more complicated than it needs to be.
-// One would need to either supply a .csv file or begin the test by writing the file.
