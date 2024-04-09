@@ -18,7 +18,7 @@ describe("Untestable 4: enterprise application", () => {
     // PostgresUserDao.getInstance().close();
   });
 
-  test("should be able to save user", async () => {
+  test("should be able to save and retrieve user", async () => {
     const user = {
       userId,
       passwordHash: hasher.hashPassword("password-123")
@@ -29,6 +29,11 @@ describe("Untestable 4: enterprise application", () => {
     const userFromDb = await users.getById(user.userId);
 
     expect(user).toEqual(userFromDb);
+  });
+
+  test("Should return null if user not found", async () => {
+    const user = await users.getById(853);
+    expect(user).toBeNull();
   })
 
   test("should be able to change password", async () => {
@@ -42,7 +47,6 @@ describe("Untestable 4: enterprise application", () => {
     await service.changePassword(userId, "old-password-123", "new-password-456")
 
     const userWithNewPassword = await users.getById(user.userId);
-    console.log(userWithNewPassword)
     expect(user.passwordHash).not.to.equal(userWithNewPassword.passwordHash);
     expect(hasher.verifyPassword(userWithNewPassword.passwordHash, "new-password-456")).to.be.true;
 
