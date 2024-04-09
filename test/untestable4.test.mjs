@@ -18,6 +18,19 @@ describe("Untestable 4: enterprise application", () => {
     // PostgresUserDao.getInstance().close();
   });
 
+  test("should be able to save user", async () => {
+    const user = {
+      userId,
+      passwordHash: hasher.hashPassword("password-123")
+    };
+
+    await users.save(user);
+
+    const userFromDb = await users.getById(user.userId);
+
+    expect(user).toEqual(userFromDb);
+  })
+
   test("should be able to change password", async () => {
     const user = {
       userId,
