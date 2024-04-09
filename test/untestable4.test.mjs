@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, test } from "vitest";
 import { PostgresUserDao } from "../src/untestable4.mjs";
 import {InMemoryUserDao, MockHasher, PasswordService} from "../src/untestable4-refactor.mjs";
-
+import { expect } from "chai";
 describe("Untestable 4: enterprise application", () => {
   let userId = 12345;
   let service;
@@ -15,12 +15,23 @@ describe("Untestable 4: enterprise application", () => {
   });
 
   afterEach(() => {
-    PostgresUserDao.getInstance().close();
+    // PostgresUserDao.getInstance().close();
   });
 
   test("should be able to change password", async () => {
-    const user = {user_id: userId, password_hash: hasher.hashPassword("old-password-123")};
+    const user = {
+      userId,
+      passwordHash: hasher.hashPassword("old-password-123")
+    };
 
+    await users.save(user);
+
+    await service.changePassword(userId, "old-password-123", "new-password-456")
+
+    const userWithNewPassword = await users.getById(user.userId);
+    console.log(userWithNewPassword)
+    expect(user.passwordHash).not.to.equal(userWithNewPassword.passwordHash);
+    expect(hasher.verifyPassword(userWithNewPassword.passwordHash, "new-password-456")).to.be.true;
 
   });
 });
