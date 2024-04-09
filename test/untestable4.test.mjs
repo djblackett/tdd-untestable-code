@@ -43,12 +43,29 @@ describe("Untestable 4: enterprise application", () => {
     };
 
     await users.save(user);
-
     await service.changePassword(userId, "old-password-123", "new-password-456")
 
     const userWithNewPassword = await users.getById(user.userId);
     expect(user.passwordHash).not.to.equal(userWithNewPassword.passwordHash);
     expect(hasher.verifyPassword(userWithNewPassword.passwordHash, "new-password-456")).to.be.true;
-
   });
+
+  test("should fail with wrong old password", async () => {
+    const user = {
+      userId,
+      passwordHash: hasher.hashPassword("old-password-123")
+    };
+
+    await users.save(user);
+
+    let error;
+    try {
+      await service.changePassword(userId, "oops-wrong-password", "new-password-456");
+    } catch (e) {
+      error = e;
+    }
+    expect(error).to.deep.equal(new Error("wrong old password"));
+  })
+
+
 });
