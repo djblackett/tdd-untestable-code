@@ -33,7 +33,7 @@ export class PostgresUserDao {
   }
 }
 
-
+// Contains original code but can now be swapped out for the MockHasher
 export class SecureHasher {
     hashPassword(password) {
         return argon2.hashSync(password);
