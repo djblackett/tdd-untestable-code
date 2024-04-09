@@ -8,7 +8,6 @@ export class PostgresUserDao {
    this.db = db;
  }
 
-
   #rowToUser(row) {
     return { userId: row.user_id, passwordHash: row.password_hash };
   }
@@ -92,3 +91,5 @@ export class PasswordService {
     await this.users.save(user);
   }
 }
+
+

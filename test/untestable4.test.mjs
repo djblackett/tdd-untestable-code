@@ -1,7 +1,9 @@
-import { afterEach, beforeEach, describe, test } from "vitest";
-import { PostgresUserDao } from "../src/untestable4.mjs";
-import {InMemoryUserDao, MockHasher, PasswordService} from "../src/untestable4-refactor.mjs";
+import { afterEach, beforeEach, beforeAll, afterAll, describe, test } from "vitest";
+import {InMemoryUserDao, PostgresUserDao, MockHasher, PasswordService, SecureHasher} from "../src/untestable4-refactor.mjs";
 import { expect } from "chai";
+import pg from "pg";
+import  { readFileSync } from "fs";
+
 describe("Untestable 4: enterprise application", () => {
   let userId = 12345;
   let service;
@@ -17,6 +19,7 @@ describe("Untestable 4: enterprise application", () => {
   afterEach(() => {
     // PostgresUserDao.getInstance().close();
   });
+
 
   test("should be able to save and retrieve user", async () => {
     const user = {
@@ -66,7 +69,7 @@ describe("Untestable 4: enterprise application", () => {
     }
     expect(error).to.deep.equal(new Error("wrong old password"));
   })
-});
+
 
   // runs same tests against different implementations of the interface
   function PasswordHasherContract(hasher) {
@@ -81,6 +84,75 @@ describe("Untestable 4: enterprise application", () => {
     })
   }
 
+  describe("test MockHasher", () => {
+    PasswordHasherContract(new MockHasher());
+  });
 
+  describe("test SecureHasher", () => {
+    PasswordHasherContract(new SecureHasher());
+  })
+
+
+  async function createTables(db) {
+    await db.query(readFileSync("./src/create-tables.sql", {encoding: "utf8", flag: "r"}));
+  }
+
+  async function dropTables(db) {
+    await db.query(readFileSync("./src/drop-tables.sql", {encoding: "utf8", flag: "r"}));
+  }
+
+  async function truncateTables(db) {
+    await db.query("truncate users");
+  }
+
+  async function getConnection() {
+    return new pg.Pool({
+      user: "untestable",
+      host: "127.0.0.1",
+      database: "untestable",
+      password: "secret",
+      port: 5432,
+    });
+  }
+
+  describe("test psql db", async () => {
+    let db;
+    let dao;
+
+    beforeAll(async () => {
+      // hardcoding for simplicity
+        db = await getConnection()
+        await dropTables(db);
+        await createTables(db)
+        dao = new PostgresUserDao(db);
+    })
+
+
+    afterAll(async () => {
+      await db.end();
+    });
+
+
+
+
+    test("should be able to save and get a user", async () => {
+      const user = {
+        userId: userId,
+        passwordHash: hasher.hashPassword("password-123")
+      }
+
+      await dao.save(user);
+      const user2 = await dao.getById(userId);
+
+      expect(user).toEqual(user2);
+    })
+
+    test("Should return null if user not found", async () => {
+      const user = await users.getById(853);
+      expect(user).toBeNull();
+    })
+  })
+
+})
 
 
