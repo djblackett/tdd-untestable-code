@@ -66,6 +66,21 @@ describe("Untestable 4: enterprise application", () => {
     }
     expect(error).to.deep.equal(new Error("wrong old password"));
   })
-
-
 });
+
+  // runs same tests against different implementations of the interface
+  function PasswordHasherContract(hasher) {
+    const hash = hasher.hashPassword("correct-password");
+
+    test("should successfully verify a password", () => {
+      expect(hasher.verifyPassword(hash, "correct-password")).to.be.true
+    })
+
+    test("should fail verification with wrong password", () => {
+      expect(hasher.verifyPassword(hash, "wrong-password")).to.be.false
+    })
+  }
+
+
+
+
