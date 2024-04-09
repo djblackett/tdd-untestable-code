@@ -34,14 +34,27 @@ export class PostgresUserDao {
 }
 
 
+export class SecureHasher {
+    hashPassword() {
+
+    }
+
+    verifyPassword() {
+
+    }
+}
+
 export class MockHasher {
-    verifySync() {
+
+    hashPassword() {
 
     }
 
-    hashSync() {
+    verifyPassword() {
 
     }
+
+
 }
 
 // inject users and hasher so they can be mocked and tested
