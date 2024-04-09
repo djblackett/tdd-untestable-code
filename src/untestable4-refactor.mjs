@@ -35,12 +35,12 @@ export class PostgresUserDao {
 
 
 export class SecureHasher {
-    hashPassword() {
-
+    hashPassword(password) {
+        return argon2.hashSync(password);
     }
 
-    verifyPassword() {
-
+    verifyPassword(hash, password) {
+        return argon2.verifySync(hash, password);
     }
 }
 
@@ -66,10 +66,10 @@ export class PasswordService {
 
   async changePassword(userId, oldPassword, newPassword) {
     const user = await this.users.getById(userId);
-    if (this.hasher.verifySync(user.passwordHash, oldPassword)) {
+    if (this.hasher.verifyPassword(user.passwordHash, oldPassword)) {
       throw new Error("wrong old password");
     }
-    user.passwordHash = this.hasher.hashSync(newPassword);
+    user.passwordHash = this.hasher.hashPassword(newPassword);
     await this.users.save(user);
   }
 }
