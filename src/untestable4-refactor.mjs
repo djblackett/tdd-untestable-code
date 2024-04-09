@@ -34,6 +34,12 @@ export class PostgresUserDao {
   }
 }
 
+// Used to decouple the db from the Dao and use the fake in memory Dao for faster tests
+// must implement same interface as PostgresUserDao class
+export class InMemoryUserDao {
+
+}
+
 // Contains original code but can now be swapped out for the MockHasher
 export class SecureHasher {
     hashPassword(password) {
