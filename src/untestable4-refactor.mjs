@@ -44,10 +44,14 @@ export class SecureHasher {
     }
 }
 
+// depended on reference solution for this fake hash function. crc32 was new for me
 export class MockHasher {
+    intToHex(n) {
+        return (n >>> 0).toString(16).padStart(8, "0");
+    }
 
     hashPassword() {
-
+        return this.intToHex(crc32(password));
     }
 
     verifyPassword() {
