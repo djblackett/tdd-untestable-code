@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, beforeAll, afterAll, describe, test } from "vitest";
-import {InMemoryUserDao, PostgresUserDao, MockHasher, PasswordService, SecureHasher} from "../src/untestable4-refactor.mjs";
+import {
+  InMemoryUserDao,
+  PostgresUserDao,
+  MockHasher,
+  PasswordService,
+  SecureHasher,
+} from "../src/untestable4-refactor.mjs";
 import { expect } from "chai";
 import pg from "pg";
-import  { readFileSync } from "fs";
+import { readFileSync } from "fs";
 
 describe("Untestable 4: enterprise application", () => {
   let userId = 12345;
@@ -11,20 +17,19 @@ describe("Untestable 4: enterprise application", () => {
   let users;
 
   beforeEach(() => {
-    users = new InMemoryUserDao()
-    hasher = new MockHasher()
-    service = new PasswordService(users, hasher)
+    users = new InMemoryUserDao();
+    hasher = new MockHasher();
+    service = new PasswordService(users, hasher);
   });
 
   afterEach(() => {
     // PostgresUserDao.getInstance().close();
   });
 
-
   test("should be able to save and retrieve user", async () => {
     const user = {
       userId,
-      passwordHash: hasher.hashPassword("password-123")
+      passwordHash: hasher.hashPassword("password-123"),
     };
 
     await users.save(user);
@@ -37,16 +42,16 @@ describe("Untestable 4: enterprise application", () => {
   test("Should return null if user not found", async () => {
     const user = await users.getById(853);
     expect(user).toBeNull();
-  })
+  });
 
   test("should be able to change password", async () => {
     const user = {
       userId,
-      passwordHash: hasher.hashPassword("old-password-123")
+      passwordHash: hasher.hashPassword("old-password-123"),
     };
 
     await users.save(user);
-    await service.changePassword(userId, "old-password-123", "new-password-456")
+    await service.changePassword(userId, "old-password-123", "new-password-456");
 
     const userWithNewPassword = await users.getById(user.userId);
     expect(user.passwordHash).not.to.equal(userWithNewPassword.passwordHash);
@@ -56,7 +61,7 @@ describe("Untestable 4: enterprise application", () => {
   test("should fail with wrong old password", async () => {
     const user = {
       userId,
-      passwordHash: hasher.hashPassword("old-password-123")
+      passwordHash: hasher.hashPassword("old-password-123"),
     };
 
     await users.save(user);
@@ -68,20 +73,19 @@ describe("Untestable 4: enterprise application", () => {
       error = e;
     }
     expect(error).to.deep.equal(new Error("wrong old password"));
-  })
-
+  });
 
   // runs same tests against different implementations of the interface
   function PasswordHasherContract(hasher) {
     const hash = hasher.hashPassword("correct-password");
 
     test("should successfully verify a password", () => {
-      expect(hasher.verifyPassword(hash, "correct-password")).to.be.true
-    })
+      expect(hasher.verifyPassword(hash, "correct-password")).to.be.true;
+    });
 
     test("should fail verification with wrong password", () => {
-      expect(hasher.verifyPassword(hash, "wrong-password")).to.be.false
-    })
+      expect(hasher.verifyPassword(hash, "wrong-password")).to.be.false;
+    });
   }
 
   describe("test MockHasher", () => {
@@ -90,15 +94,14 @@ describe("Untestable 4: enterprise application", () => {
 
   describe("test SecureHasher", () => {
     PasswordHasherContract(new SecureHasher());
-  })
-
+  });
 
   async function createTables(db) {
-    await db.query(readFileSync("./src/create-tables.sql", {encoding: "utf8", flag: "r"}));
+    await db.query(readFileSync("./src/create-tables.sql", { encoding: "utf8", flag: "r" }));
   }
 
   async function dropTables(db) {
-    await db.query(readFileSync("./src/drop-tables.sql", {encoding: "utf8", flag: "r"}));
+    await db.query(readFileSync("./src/drop-tables.sql", { encoding: "utf8", flag: "r" }));
   }
 
   async function truncateTables(db) {
@@ -121,57 +124,50 @@ describe("Untestable 4: enterprise application", () => {
     let hasher;
     let service;
 
-
     beforeAll(async () => {
       // hardcoding for simplicity
-      db = await getConnection()
+      db = await getConnection();
       await dropTables(db);
-      await createTables(db)
+      await createTables(db);
       dao = new PostgresUserDao(db);
-      hasher = new SecureHasher()
-      service = new PasswordService(dao, hasher)
-    })
-
+      hasher = new SecureHasher();
+      service = new PasswordService(dao, hasher);
+    });
 
     afterAll(async () => {
       await db.end();
     });
 
-
     test("should be able to save and get a user", async () => {
       const user = {
         userId: userId,
-        passwordHash: hasher.hashPassword("password-123")
-      }
+        passwordHash: hasher.hashPassword("password-123"),
+      };
 
       await dao.save(user);
       const user2 = await dao.getById(userId);
 
       expect(user).toEqual(user2);
-    })
+    });
 
     test("Should return null if user not found", async () => {
       const user = await dao.getById(853);
       expect(user).toBeNull();
-    })
+    });
 
     test("user should be able to change password", async () => {
       const user = {
         userId: 2436,
-        passwordHash: "Moose"
+        passwordHash: "Moose",
       };
 
       await dao.save(user);
-      user.passwordHash = "bologna sandwich"
+      user.passwordHash = "bologna sandwich";
       expect(user).not.to.equal(await dao.getById(user.userId));
 
       await dao.save(user);
 
       expect(user).to.deep.equal(await dao.getById(user.userId));
     });
-
-  })
-
-})
-
-
+  });
+});
