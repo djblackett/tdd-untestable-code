@@ -1,5 +1,6 @@
 import argon2 from "@node-rs/argon2";
 import pg from "pg";
+import {crc32} from "@node-rs/crc32";
 
 export class PostgresUserDao {
 
@@ -50,12 +51,12 @@ export class MockHasher {
         return (n >>> 0).toString(16).padStart(8, "0");
     }
 
-    hashPassword() {
+    hashPassword(password) {
         return this.intToHex(crc32(password));
     }
 
-    verifyPassword() {
-
+    verifyPassword(hash, password) {
+        return this.hashPassword(password) === hash;
     }
 
 
