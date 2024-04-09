@@ -37,7 +37,15 @@ export class PostgresUserDao {
 // Used to decouple the db from the Dao and use the fake in memory Dao for faster tests
 // must implement same interface as PostgresUserDao class
 export class InMemoryUserDao {
+    users = {};
 
+    async getById(userId) {
+        return structuredClone(this.users[userId]) || null;
+    }
+
+    async save(user) {
+        this.users[user.userId] = structuredClone(user);
+    }
 }
 
 // Contains original code but can now be swapped out for the MockHasher
