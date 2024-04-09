@@ -118,21 +118,24 @@ describe("Untestable 4: enterprise application", () => {
   describe("test psql db", async () => {
     let db;
     let dao;
+    let hasher;
+    let service;
+
 
     beforeAll(async () => {
       // hardcoding for simplicity
-        db = await getConnection()
-        await dropTables(db);
-        await createTables(db)
-        dao = new PostgresUserDao(db);
+      db = await getConnection()
+      await dropTables(db);
+      await createTables(db)
+      dao = new PostgresUserDao(db);
+      hasher = new SecureHasher()
+      service = new PasswordService(dao, hasher)
     })
 
 
     afterAll(async () => {
       await db.end();
     });
-
-
 
 
     test("should be able to save and get a user", async () => {
@@ -148,9 +151,25 @@ describe("Untestable 4: enterprise application", () => {
     })
 
     test("Should return null if user not found", async () => {
-      const user = await users.getById(853);
+      const user = await dao.getById(853);
       expect(user).toBeNull();
     })
+
+    test("user should be able to change password", async () => {
+      const user = {
+        userId: 2436,
+        passwordHash: "Moose"
+      };
+
+      await dao.save(user);
+      user.passwordHash = "bologna sandwich"
+      expect(user).not.to.equal(await dao.getById(user.userId));
+
+      await dao.save(user);
+
+      expect(user).to.deep.equal(await dao.getById(user.userId));
+    });
+
   })
 
 })
